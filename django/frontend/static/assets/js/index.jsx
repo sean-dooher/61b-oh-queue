@@ -1,14 +1,14 @@
 import React from "react";
 import {render} from "react-dom";
 import App from "./app";
-import {sentinelApp} from "./reducers/reducers";
+import {mainApp} from "./reducers/reducers";
 import {createStore, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux';
 import ReduxThunk from 'redux-thunk';
 import Cookies from "js-cookie";
 import {handleWebsocketMessage} from "./reducers/apiHandlers";
 
-window.getHeader = {
+window.getParams = {
     method: 'get',
     credentials: "same-origin",
     headers: {
@@ -19,7 +19,7 @@ window.getHeader = {
     cache: "reload",
 };
 
-window.postHeader = {
+window.postParams = {
     method: 'post',
     credentials: "same-origin",
     headers: {
@@ -30,7 +30,7 @@ window.postHeader = {
     cache: "reload",
 };
 
-window.putHeader = {
+window.putParams = {
     method: 'put',
     credentials: "same-origin",
     headers: {
@@ -41,7 +41,7 @@ window.putHeader = {
     cache: "reload"
 };
 
-window.deleteHeader = {
+window.deleteParams = {
     method: 'delete',
     credentials: "same-origin",
     headers: {
@@ -52,7 +52,7 @@ window.deleteHeader = {
     cache: "reload"
 };
 
-window.store = createStore(sentinelApp, applyMiddleware(ReduxThunk));
+window.store = createStore(mainApp, applyMiddleware(ReduxThunk));
 window.websocketMessageHandler = (message) => handleWebsocketMessage(window.store.dispatch, message);
 
 
