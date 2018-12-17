@@ -1,0 +1,17 @@
+django
+django-cors-headers
+django-guardian
+django-oauth-toolkit
+django-polymorphic
+django-webpack-loader
+djangorestframework
+websockets
+channels
+channels_redis
+psycopg2-binary
+coverage
+pytest-django
+pytest-asyncio
+pytest-cov
+channelsmultiplexer
+

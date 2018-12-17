@@ -1,0 +1,29 @@
+version: '3.4'
+services:
+  nginx:
+    ports:
+      - "80:80"
+    volumes:
+      - ./django/assets/bundles:/static/bundles
+  reactserver:
+    build:
+      context: .
+      target: react-pkg
+    working_dir: /django
+    command: sh -c "npm install package.json; npm run watch"
+    volumes:
+      - ./django/webpack-stats.json:/django/webpack-stats.json
+      - ./django/:/django/
+  interfaceserver:    
+    depends_on:
+      - reactserver
+    volumes:
+      - ./django:/django
+      - ./django/assets/bundles:/static/bundles
+    env_file:
+      - config/local.env
+  database:
+    volumes:
+      - db_data:/var/lib/postgresql/data
+volumes:
+  db_data:
