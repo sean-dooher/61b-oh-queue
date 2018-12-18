@@ -13,11 +13,11 @@ services:
       context: .
       args:
         user_id: 1000
-    image: REPO/PROJECT_NAME:${ID:-latest}
+    image: repo/project_name:${ID:-latest}
     command: /entry/entrypoint-interface.sh
     environment:
       POSTGRES_HOST: "database"
-      PROJECT_NAME: "PROJECT_NAME"
+      PROJECT_NAME: "project_name"
       DJANGO_DOCKER: "TRUE"
     expose:
       - "8000"
