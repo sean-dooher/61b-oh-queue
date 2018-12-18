@@ -1,7 +1,7 @@
 import os, sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ASGI_APPLICATION = 'exampleproject.routing.application'
+ASGI_APPLICATION = 'ohqueue.routing.application'
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '=)')
 DEBUG = os.environ.get('DJANGO_DEBUG', "TRUE") == "TRUE"
@@ -10,7 +10,7 @@ TESTING = sys.argv[1:2] == ['test'] or sys.argv[1:2] == ['jenkins']
 SSL = os.environ.get('DJANGO_SSL', "FALSE") == "TRUE"
 DJANGO_HOSTNAME = os.environ.get('DJANGO_HOSTNAME', 'localhost')
 
-ALLOWED_HOSTS = [DJANGO_HOSTNAME, 'exampleproject_server']
+ALLOWED_HOSTS = [DJANGO_HOSTNAME, 'ohqueue_server']
 
 if DJANGO_HOSTNAME == 'localhost':
     ALLOWED_HOSTS += ['0.0.0.0', '127.0.0.1']
@@ -24,7 +24,7 @@ if TESTING:
         'django.contrib.auth.hashers.MD5PasswordHasher',
     )
 
-TEST_RUNNER = 'exampleproject.runner.PytestTestRunner'
+TEST_RUNNER = 'ohqueue.runner.PytestTestRunner'
 
 
 WEBPACK_LOADER = {
@@ -65,7 +65,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
 ]
 
-ROOT_URLCONF = 'exampleproject.urls'
+ROOT_URLCONF = 'ohqueue.urls'
 
 TEMPLATES = [
     {
@@ -83,7 +83,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'exampleproject.wsgi.application'
+WSGI_APPLICATION = 'ohqueue.wsgi.application'
 
 DATABASES = {
         'default': {

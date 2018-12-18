@@ -12,11 +12,11 @@ services:
       context: .
       args:
         user_id: 1000
-    image: repo/exampleproject:${ID:-latest}
+    image: seandooher/ohqueue:${ID:-latest}
     command: /entry/entrypoint-interface.sh
     environment:
       POSTGRES_HOST: "database"
-      PROJECT_NAME: "exampleproject"
+      PROJECT_NAME: "ohqueue"
       DJANGO_DOCKER: "TRUE"
     expose:
       - "8000"
