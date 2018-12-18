@@ -28,12 +28,6 @@ export class HeaderBar extends React.Component {
                             })
                         }
                     </ul>
-                    <div className="text-white">
-                        {window.info.username}
-                        <a className="nav-logout" href="/accounts/logout">
-                            <i className="fa fa-sign-out-alt"/>
-                        </a>
-                    </div>
                 </div>
             </div>
         </header>;

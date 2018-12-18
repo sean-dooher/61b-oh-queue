@@ -1,1 +1,1 @@
-{"status":"done","chunks":{"main":[{"name":"main.js","path":"/example_project/frontend/static/assets/bundles/main.js"}]}}
+{"status":"error","chunks":{"main":[{"name":"main.js","path":"/example_project/frontend/assets/bundles/main.js"}]},"error":"ModuleNotFoundError","message":"Module not found: Error: Can't resolve 'history' in '/example_project/frontend/assets/js'"}

@@ -4,7 +4,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./example_project/assets/bundles:/static/bundles
+      - ./example_project/frontend/assets/bundles:/static/bundles
   reactserver:
     build:
       context: .

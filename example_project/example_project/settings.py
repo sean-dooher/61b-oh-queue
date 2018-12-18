@@ -34,6 +34,10 @@ WEBPACK_LOADER = {
     }
 }
 
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'frontend/assets'),
+)
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

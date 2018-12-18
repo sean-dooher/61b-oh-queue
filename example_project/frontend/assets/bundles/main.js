@@ -21435,9 +21435,19 @@ var _reactRedux = __webpack_require__(6);
 
 var _Navigation = __webpack_require__(68);
 
+var _page = __webpack_require__(76);
+
+var _page2 = __webpack_require__(77);
+
 var _propTypes = __webpack_require__(7);
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _history = __webpack_require__(75);
+
+var _history2 = _interopRequireDefault(_history);
+
+var _reactRouterDom = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"react-router-dom\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -21459,7 +21469,16 @@ var AppBase = exports.AppBase = function (_React$Component) {
     _createClass(AppBase, [{
         key: "render",
         value: function render() {
-            return _react2.default.createElement(_Navigation.Navigation, null);
+            return _react2.default.createElement(
+                _reactRouterDom.Router,
+                null,
+                _react2.default.createElement(
+                    _Navigation.Navigation,
+                    null,
+                    _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: "/", component: _page.PageOne }),
+                    _react2.default.createElement(_reactRouterDom.Route, { path: "/page2", component: _page2.PageTwo })
+                )
+            );
         }
     }]);
 
@@ -23556,16 +23575,6 @@ var HeaderBar = exports.HeaderBar = function (_React$Component) {
                                     );
                                 }
                             })
-                        ),
-                        _react2.default.createElement(
-                            "div",
-                            { className: "text-white" },
-                            window.info.username,
-                            _react2.default.createElement(
-                                "a",
-                                { className: "nav-logout", href: "/accounts/logout" },
-                                _react2.default.createElement("i", { className: "fa fa-sign-out-alt" })
-                            )
                         )
                     )
                 )
@@ -23842,6 +23851,119 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 	return init(function () {});
 }));
 
+
+/***/ }),
+/* 75 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _history = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"history\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+
+exports.default = (0, _history.createBrowserHistory)();
+
+/***/ }),
+/* 76 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.PageOne = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var PageOne = exports.PageOne = function (_React$Component) {
+    _inherits(PageOne, _React$Component);
+
+    function PageOne() {
+        _classCallCheck(this, PageOne);
+
+        return _possibleConstructorReturn(this, (PageOne.__proto__ || Object.getPrototypeOf(PageOne)).apply(this, arguments));
+    }
+
+    _createClass(PageOne, [{
+        key: "render",
+        value: function render() {
+            return _react2.default.createElement(
+                "h1",
+                null,
+                "React has successfully been loaded!"
+            );
+        }
+    }]);
+
+    return PageOne;
+}(_react2.default.Component);
+
+/***/ }),
+/* 77 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.PageTwo = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var PageTwo = exports.PageTwo = function (_React$Component) {
+    _inherits(PageTwo, _React$Component);
+
+    function PageTwo() {
+        _classCallCheck(this, PageTwo);
+
+        return _possibleConstructorReturn(this, (PageTwo.__proto__ || Object.getPrototypeOf(PageTwo)).apply(this, arguments));
+    }
+
+    _createClass(PageTwo, [{
+        key: "render",
+        value: function render() {
+            return _react2.default.createElement(
+                "h1",
+                null,
+                "This is a separate page!"
+            );
+        }
+    }]);
+
+    return PageTwo;
+}(_react2.default.Component);
 
 /***/ })
 /******/ ]);

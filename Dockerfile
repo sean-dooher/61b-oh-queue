@@ -5,7 +5,7 @@ USER node
 COPY --chown=node:node example_project/webpack.config.js example_project/.babelrc /example_project/
 COPY --chown=node:node example_project/package.json example_project/package-lock.json /example_project/
 RUN cd /example_project && npm install
-COPY --chown=node:node example_project/frontend/static/assets /example_project/frontend/static/assets
+COPY --chown=node:node example_project/frontend/assets /example_project/frontend/assets
 RUN cd /example_project && npm run build
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
@@ -29,7 +29,7 @@ RUN pip install -r /example_project/requirements.txt
 COPY --chown=example_project:example_project ./example_project/ /example_project/
 COPY --chown=example_project:example_project config/entrypoint-*.sh /entry/
 COPY --chown=example_project:example_project run_tests.sh /example_project/
-COPY --from=react-pkg /example_project/frontend/static/assets/bundles/main.js /example_project/frontend/static/bundles/main.js
+COPY --from=react-pkg /example_project/frontend/assets/bundles/main.js /example_project/frontend/bundles/main.js
 COPY --from=react-pkg /example_project/webpack-stats.json /example_project
 
 
