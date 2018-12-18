@@ -3,7 +3,6 @@ services:
   nginx:
     image: nginx:latest
     volumes:
-      - ./config/nginx/local.conf:/config/local.conf
       - static:/static
     depends_on:
       - interfaceserver

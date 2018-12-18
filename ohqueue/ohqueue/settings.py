@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'channels',
     'rest_framework',
-    'backend_app',
+    'queue',
     'frontend',
     'webpack_loader',
     'corsheaders'
