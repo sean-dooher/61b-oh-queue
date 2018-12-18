@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'channels',
     'rest_framework',
-    'queue',
+    'backend',
     'frontend',
     'webpack_loader',
     'corsheaders'
@@ -148,7 +148,7 @@ LOGGING = {
         }
     },
     'loggers': {
-        'backend_app.consumers': {
+        'queue.consumers': {
             'handlers': ['console'],
             'level': 'DEBUG',
         }
