@@ -1,8 +1,5 @@
 django
 django-cors-headers
-django-guardian
-django-oauth-toolkit
-django-polymorphic
 django-webpack-loader
 djangorestframework
 websockets
