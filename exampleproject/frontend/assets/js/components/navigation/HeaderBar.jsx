@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 
 export class HeaderBar extends React.Component {
@@ -16,17 +15,10 @@ export class HeaderBar extends React.Component {
                 <div className="collapse navbar-collapse" id="main-nav">
                     <ul className="navbar-nav mr-auto">
                         {
-                            this.props.links.map((link, key) => {
-                                if (this.props.active === link.name) {
-                                    return <li className={"nav-item active"} key={key}>
-                                        <Link className="nav-link" to={link.href}>{link.name}</Link>
-                                    </li>;
-                                } else {
-                                    return <li className={"nav-item"} key={key}>
-                                        <Link className="nav-link" to={link.href}>{link.name}</Link>
-                                    </li>;
-                                }
-                            })
+                            this.props.links.map((link, key) => (
+                                    <li className={"nav-item" + (this.props.active === link.name ? " active" : "")} key={key}>
+                                        <Link className="nav-link" to={link.href} onClick={() => this.props.changePage(link.name)}>{link.name}</Link>
+                                    </li>))
                         }
                     </ul>
                 </div>
@@ -38,4 +30,5 @@ export class HeaderBar extends React.Component {
 HeaderBar.propTypes = {
     links: PropTypes.array,
     active: PropTypes.string,
+    changePage: PropTypes.func
 };

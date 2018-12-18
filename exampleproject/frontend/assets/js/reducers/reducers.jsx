@@ -1,4 +1,4 @@
-import {CHANGE_PAGE} from "../actions/apiActions.jsx";
+import {CHANGE_PAGE} from "../actions/navActions";
 
 const initialState = {
     api: {},
@@ -14,6 +14,7 @@ function cloneState(oldState) {
 
 export function mainApp(state = initialState, action) {
     let newState = cloneState(state);
+
     switch (action.type) {
         case CHANGE_PAGE:
             newState.navbar.active = action.page;
