@@ -13,7 +13,7 @@ __pycache__/
 *.key
 *.cer
 venv/*
-*/assets/bundles/*
+ohqueue/frontend/assets/bundles/*
 
 .idea/
 # Distribution / packaging
