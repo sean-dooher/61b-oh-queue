@@ -7,6 +7,7 @@ from rest_framework import routers
 
 from frontend.views import index
 from backend.views import TicketList, TicketQueue, TicketEventList
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns  
 
 router = routers.SimpleRouter()
 router.register('tickets', TicketList, 'Ticket')
@@ -18,5 +19,6 @@ urlpatterns = [
     path(r'', index, name='index'),
     path(r'api/', include(router.urls))
 ]
+urlpatterns += staticfiles_urlpatterns()
 
 urlpatterns = format_suffix_patterns(urlpatterns)

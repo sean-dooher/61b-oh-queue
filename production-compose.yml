@@ -1,19 +1,23 @@
 version: '3.4'
 services:
   nginx:
-    container_name: PROJECT_NAME-nginx
+    image: nginx:latest
+    container_name: ohqueue-nginx
     env_file:
       - config/production.env
     ports:
       - "443:443"
       - "80:80"
     volumes:
+      - static:/static
       - ./config/nginx/production.conf:/config/production.conf
       - /docker-volumes/etc/letsencrypt/live/${DJANGO_HOST}/fullchain.pem:/certs/cert.pem
       - /docker-volumes/etc/letsencrypt/live/${DJANGO_HOST}/privkey.pem:/certs/key.pem
       - /docker-volumes/data/letsencrypt:/data/letsencrypt
       - nginx_logs:/logs
     command: /bin/bash -c "envsubst '$$DJANGO_HOSTNAME' < /config/production.conf > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+    depends_on:
+      - interfaceserver
   interfaceserver:
     env_file:
       - config/production.env

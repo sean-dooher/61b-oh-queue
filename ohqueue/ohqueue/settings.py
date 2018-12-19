@@ -185,7 +185,7 @@ if DOCKER:
 else:
     MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-if DOCKER:
+if DOCKER and not DEBUG:
     STATIC_ROOT = '/static/'
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')

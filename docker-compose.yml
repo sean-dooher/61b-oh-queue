@@ -1,11 +1,5 @@
 version: '3.4'
 services:
-  nginx:
-    image: nginx:latest
-    volumes:
-      - static:/static
-    depends_on:
-      - interfaceserver
   interfaceserver:
     build: 
       context: .
