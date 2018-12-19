@@ -10,22 +10,33 @@ from backend.serializers import TicketEventSerializer, TicketSerializer
 
 logging.disable(logging.ERROR)
 
-@pytest.mark.django_db(transaction=True)
-class TestSerializers:
+class TestUtils:
     @pytest.fixture
     def profile(self):
         self.user = User.objects.create_user("test", email="test@test.com", password="pass123")
         self.student_profile = Profile.objects.create(user=self.user, is_staff=False, name="Alice Bobson")
-
         return self.student_profile
 
     @pytest.fixture
     def staff_profile(self):
         self.user = User.objects.create_user("staff", email="test@test.com", password="pass123")
         self.staff = Profile.objects.create(user=self.user, is_staff=True, name="Alice Bobson")
-
         return self.staff
 
+    @pytest.fixture
+    def client(self):
+        client = APIClient()
+        client.login(username="test", password="pass123")
+        return client
+
+    @pytest.fixture
+    def staff_client(self):
+        client = APIClient()
+        client.login(username="staff", password="pass123")
+        return client
+
+@pytest.mark.django_db(transaction=True)
+class TestSerializers(TestUtils):
     @pytest.fixture
     def ticket(self):
         ticket = Ticket.objects.create(
@@ -36,22 +47,7 @@ class TestSerializers:
             location="Morgan 255",
             description="[Conceptual] Need help with make client"
         )
-
         return ticket
-
-    @pytest.fixture
-    def client(self):
-        client = APIClient()
-        client.login(username="test", password="pass123")
-
-        return client
-
-    @pytest.fixture
-    def staff_client(self):
-        client = APIClient()
-        client.login(username="staff", password="pass123")
-
-        return client
 
     def check_single_ticket(self, data, profile):
         expected_data = {
@@ -120,3 +116,41 @@ class TestSerializers:
         event_json = data[0]
 
         self.check_single_event(event_json, ticket, profile)
+
+@pytest.mark.django_db(transaction=True)
+class TestQueue(TestUtils):
+    def create_ticket(self, status=TicketStatus.pending):
+        return Ticket.objects.create(
+                status=status.value,
+                student=self.student_profile,
+                assignment="Project 3",
+                question="Question 1",
+                location="Morgan 255",
+                description="[Conceptual] Need help with make client")
+
+    @pytest.fixture
+    def tickets(self):
+        return [self.create_ticket() for _ in range(10)]
+
+    def test_queue_single_item(self, profile, staff_profile, staff_client):
+        self.create_ticket()
+
+        result = staff_client.get('/api/queue/')
+        assert result.status_code == 200, "Should have succeeded"
+
+        data = result.json()
+
+        assert len(data) == 1, "Should be exactly one ticket"
+
+    def test_queue_some_resolved(self, profile, staff_profile, staff_client, tickets):
+        for i, ticket in enumerate(tickets):
+            if i in [1, 2, 4]:
+                ticket.status = TicketStatus.resolved.value
+                ticket.save()
+
+        result = staff_client.get('/api/queue/')
+        assert result.status_code == 200, "Should have succeeded"
+
+        data = result.json()
+
+        assert len(data) == 7, "Should be exactly 7 tickets in queue (3 resolved)"
