@@ -1,4 +1,4 @@
-# 61B Office Hour Queue
+# 61B Office Hour Queue [![Build Status](http://builder.dooher.net/buildStatus/icon?job=61b-oh-queue/master)](http://builder.dooher.net/job/61b-oh-queue/job/master/)
 This is the newly redesigned OH queue for CS 61B.
 
 ## Running
