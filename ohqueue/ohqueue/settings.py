@@ -155,11 +155,8 @@ LOGGING = {
     }
 }
 
-AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend', 'guardian.backends.ObjectPermissionBackend')
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
 }
@@ -188,7 +185,7 @@ if DOCKER:
 else:
     MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-if DOCKER:
+if DOCKER and not DEBUG:
     STATIC_ROOT = '/static/'
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')

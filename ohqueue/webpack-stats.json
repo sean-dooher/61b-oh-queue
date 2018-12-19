@@ -1,1 +1,1 @@
-{"status":"done","chunks":{"main":[{"name":"main.js","path":"/ohqueue/frontend/assets/bundles/main.js"}]}}
+{"status":"done","publicPath":"http://localhost:3000/assets/bundles/","chunks":{"main":[{"name":"main.js","publicPath":"http://localhost:3000/assets/bundles/main.js","path":"/ohqueue/frontend/assets/bundles/main.js"},{"name":"0.61a3967ea6b44c9a9891.hot-update.js","publicPath":"http://localhost:3000/assets/bundles/0.61a3967ea6b44c9a9891.hot-update.js","path":"/ohqueue/frontend/assets/bundles/0.61a3967ea6b44c9a9891.hot-update.js"}]}}

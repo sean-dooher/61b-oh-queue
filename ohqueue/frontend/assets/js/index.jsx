@@ -7,6 +7,10 @@ import {Provider} from 'react-redux';
 import ReduxThunk from 'redux-thunk';
 import Cookies from "js-cookie";
 
+if (module.hot) {
+    module.hot.accept();
+}
+
 window.getParams = {
     method: 'get',
     credentials: "same-origin",
