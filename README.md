@@ -33,6 +33,7 @@ To start up the server:
 ```
 To run it in detached mode, you can append a `-d` to the previous command and Docker will not block your terminal while running.
 
+After running this command, you should be able to reach the server at http://localhost:8000.
 
 **Note for Windows**:
 If you followed the section above for building on Windows and you cannot connect to the development server, but it seems to be running properly, you are probably running Docker Toolbox and you need to forward the 80 port from the VM to your local computer. This is a decent guide on doing this: https://www.simplified.guide/virtualbox/port-forwarding
@@ -78,6 +79,7 @@ After running this command, deleting and recloning the repo should fix the issue
 More will be added to this section
 
 ### Docker Services/Architecture
+This section is a general overview of how the docker configuration is set up and is not necessary for general development or running the project.
 #### General Services
 1. Postgres
 
