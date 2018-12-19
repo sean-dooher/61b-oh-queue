@@ -5,7 +5,9 @@ services:
       context: .
       target: react-pkg
     working_dir: /ohqueue
-    command: sh -c "npm install package.json; npm run watch"
+    ports: 
+      - "3000:3000"
+    command: sh -c "npm install package.json; node react_server.js"
     volumes:
       - ./ohqueue/webpack-stats.json:/ohqueue/webpack-stats.json
       - ./ohqueue/:/ohqueue/
