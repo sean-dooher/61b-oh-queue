@@ -33,6 +33,42 @@ class Ticket(models.Model):
     description = models.TextField()
     helper = models.ForeignKey(Profile, related_name="helping", null=True, on_delete=models.SET_NULL, db_index=True)
 
+    def assign(self, helper):
+        Ticket.status = TicketStatus.assigned.value
+        self.save()
+
+        TicketEvent.objects.create(
+            event_type=TicketEventType.assign.value, 
+            ticket=self, user=helper
+        )
+    
+    def delete(self, user):
+        Ticket.status = TicketStatus.deleted.value
+        self.save()
+
+        TicketEvent.objects.create(
+            event_type=TicketEventType.delete.value, 
+            ticket=self, user=user
+        )
+    
+    def requeue(self, user):
+        Ticket.status = TicketStatus.pending.value
+        self.save()
+
+        TicketEvent.objects.create(
+            event_type=TicketEventType.unassign.value, 
+            ticket=self, user=user
+        )
+    
+    def resolve(self, user):
+        Ticket.status = TicketStatus.resolved.value
+        self.save()
+
+        TicketEvent.objects.create(
+            event_type=TicketEventType.resolve.value, 
+            ticket=self, user=user
+        )
+
 
 class TicketEventType(Enum):
     create='create'
