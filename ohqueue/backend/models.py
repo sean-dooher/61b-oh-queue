@@ -6,10 +6,21 @@ from django.contrib.auth.models import User
 
 logger = logging.getLogger(__name__)
 
+class ProfileType(Enum):
+    student="student"
+    lab_assistant="lab_assistant"
+    teaching_assistant="teaching_assistant"
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
 
-    is_staff = models.BooleanField()
+    profile_type = models.CharField(
+                max_length=64,
+                choices=[(tag, tag.value) for tag in ProfileType],
+                default=ProfileType.student.value,
+                db_index=True)
+
     name = models.CharField(max_length=255)
 
 

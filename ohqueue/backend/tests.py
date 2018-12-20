@@ -5,7 +5,7 @@ import json
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 
-from backend.models import Profile, Ticket, TicketEvent, TicketStatus, TicketEventType
+from backend.models import Profile, ProfileType, Ticket, TicketEvent, TicketStatus, TicketEventType
 from backend.serializers import TicketEventSerializer, TicketSerializer
 
 logging.disable(logging.ERROR)
@@ -14,13 +14,13 @@ class TestUtils:
     @pytest.fixture
     def profile(self):
         self.user = User.objects.create_user("test", email="test@test.com", password="pass123")
-        self.student_profile = Profile.objects.create(user=self.user, is_staff=False, name="Alice Bobson")
+        self.student_profile = Profile.objects.create(user=self.user, name="Alice Bobson")
         return self.student_profile
 
     @pytest.fixture
     def staff_profile(self):
         self.user = User.objects.create_user("staff", email="test@test.com", password="pass123")
-        self.staff = Profile.objects.create(user=self.user, is_staff=True, name="Alice Bobson")
+        self.staff = Profile.objects.create(user=self.user, profile_type=ProfileType.teaching_assistant.value, name="Alice Bobson")
         return self.staff
 
     @pytest.fixture
