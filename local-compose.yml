@@ -16,9 +16,10 @@ services:
       - "8000:8000"
     depends_on:
       - reactserver
+    env_file:
+      - config/local.env
     volumes:
       - ./ohqueue:/ohqueue
-      - ./ohqueue/frontend/assets/bundles:/static/bundles
   database:
     volumes:
       - db_data:/var/lib/postgresql/data

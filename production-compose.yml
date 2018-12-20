@@ -22,11 +22,11 @@ services:
     env_file:
       - config/production.env
   workerserver:
-    image: REPO/PROJECT_NAME:${ID:-latest}
+    image: seandooher/ohqueue:${ID:-latest}
     command: /entry/entrypoint-worker.sh
     environment:
       POSTGRES_HOST: "database"
-      PROJECT_NAME: "PROJECT_NAME"
+      PROJECT_NAME: "ohqueue"
       DJANGO_DOCKER: "TRUE"
     env_file:
       - config/production.env

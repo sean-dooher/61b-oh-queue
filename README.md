@@ -1,4 +1,4 @@
-# 61B Office Hour Queue
+# 61B Office Hour Queue [![Build Status](http://builder.dooher.net/buildStatus/icon?job=61b-oh-queue/master)](http://builder.dooher.net/job/61b-oh-queue/job/master/)
 This is the newly redesigned OH queue for CS 61B.
 
 ## Running
@@ -33,6 +33,7 @@ To start up the server:
 ```
 To run it in detached mode, you can append a `-d` to the previous command and Docker will not block your terminal while running.
 
+After running this command, you should be able to reach the server at http://localhost:8000.
 
 **Note for Windows**:
 If you followed the section above for building on Windows and you cannot connect to the development server, but it seems to be running properly, you are probably running Docker Toolbox and you need to forward the 80 port from the VM to your local computer. This is a decent guide on doing this: https://www.simplified.guide/virtualbox/port-forwarding
@@ -78,6 +79,7 @@ After running this command, deleting and recloning the repo should fix the issue
 More will be added to this section
 
 ### Docker Services/Architecture
+This section is a general overview of how the docker configuration is set up and is not necessary for general development or running the project.
 #### General Services
 1. Postgres
 
@@ -100,8 +102,10 @@ More will be added to this section
 
     Additionally, a worker server is added to handle Websockets requests as required by Django channels. This server runs the Django code and communicates with the Redis server to handle requests.
 
-### Running Without Docker
+### Running Without Docker (not recommended)
 It should also be easy to run without Docker for development purposes (as it is easier to drop a debugger in this manner). Please note that the following instructions will not work on Windows as Redis is a prerequisite and cannot run on Windows at the current time (you may be able to get around this by running Redis in a Docker container). All commands listed below are assumed to run in the root of this project.
+
+These instructions have not been tested, but should provide a general overview and how to get the project set up.
 
 #### Prerequisites
 ##### Postgres
