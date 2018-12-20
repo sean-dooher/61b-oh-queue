@@ -102,8 +102,10 @@ This section is a general overview of how the docker configuration is set up and
 
     Additionally, a worker server is added to handle Websockets requests as required by Django channels. This server runs the Django code and communicates with the Redis server to handle requests.
 
-### Running Without Docker
+### Running Without Docker (not recommended)
 It should also be easy to run without Docker for development purposes (as it is easier to drop a debugger in this manner). Please note that the following instructions will not work on Windows as Redis is a prerequisite and cannot run on Windows at the current time (you may be able to get around this by running Redis in a Docker container). All commands listed below are assumed to run in the root of this project.
+
+These instructions have not been tested, but should provide a general overview and how to get the project set up.
 
 #### Prerequisites
 ##### Postgres
