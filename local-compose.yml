@@ -18,7 +18,6 @@ services:
       - reactserver
     volumes:
       - ./ohqueue:/ohqueue
-      - ./ohqueue/frontend/assets/bundles:/static/bundles
   database:
     volumes:
       - db_data:/var/lib/postgresql/data
