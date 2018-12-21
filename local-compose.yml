@@ -20,6 +20,8 @@ services:
       - config/local.env
     volumes:
       - ./ohqueue:/ohqueue
+      - ./requirements.txt:/ohqueue/requirements.txt
+      - ./requirements.in:/ohqueue/requirements.in
   database:
     volumes:
       - db_data:/var/lib/postgresql/data
