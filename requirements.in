@@ -11,4 +11,4 @@ pytest-django
 pytest-asyncio
 pytest-cov
 channelsmultiplexer
-
+pip-tools

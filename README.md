@@ -63,9 +63,9 @@ To install a new npm package:
 
 To install a new python requirement:
 
-First add the requirement to `requirements.in` and then run the following command:
+First add the requirement to `requirements.in` and then run the following command locally (needs the **pip-tools** python package to be installed locally):
 ```
-./compose exec interfaceserver sh -c "pip-tools compile requirements.in > requirements.txt"
+pip-compile requirements.in > requirements.txt
 ```
 
 #### Building for Windows
