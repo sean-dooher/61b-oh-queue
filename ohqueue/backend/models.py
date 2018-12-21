@@ -6,10 +6,21 @@ from django.contrib.auth.models import User
 
 logger = logging.getLogger(__name__)
 
+class ProfileType(Enum):
+    student="student"
+    lab_assistant="lab_assistant"
+    teaching_assistant="teaching_assistant"
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
 
-    is_staff = models.BooleanField()
+    profile_type = models.CharField(
+                max_length=64,
+                choices=[(tag, tag.value) for tag in ProfileType],
+                default=ProfileType.student.value,
+                db_index=True)
+
     name = models.CharField(max_length=255)
 
 
@@ -32,6 +43,42 @@ class Ticket(models.Model):
 
     description = models.TextField()
     helper = models.ForeignKey(Profile, related_name="helping", null=True, on_delete=models.SET_NULL, db_index=True)
+
+    def assign(self, helper):
+        Ticket.status = TicketStatus.assigned.value
+        self.save()
+
+        TicketEvent.objects.create(
+            event_type=TicketEventType.assign.value, 
+            ticket=self, user=helper
+        )
+    
+    def delete(self, user):
+        Ticket.status = TicketStatus.deleted.value
+        self.save()
+
+        TicketEvent.objects.create(
+            event_type=TicketEventType.delete.value, 
+            ticket=self, user=user
+        )
+    
+    def requeue(self, user):
+        Ticket.status = TicketStatus.pending.value
+        self.save()
+
+        TicketEvent.objects.create(
+            event_type=TicketEventType.unassign.value, 
+            ticket=self, user=user
+        )
+    
+    def resolve(self, user):
+        Ticket.status = TicketStatus.resolved.value
+        self.save()
+
+        TicketEvent.objects.create(
+            event_type=TicketEventType.resolve.value, 
+            ticket=self, user=user
+        )
 
 
 class TicketEventType(Enum):
