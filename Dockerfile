@@ -2,7 +2,7 @@ FROM node:8-alpine as react-pkg
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git openssh dumb-init
 USER node
-COPY --chown=node:node ohqueue/webpack.config.js ohqueue/webpack.prod.config.js ohqueue/.babelrc /ohqueue/
+COPY --chown=node:node ohqueue/jest-setup.js ohqueue/jest.config.js ohqueue/webpack.config.js ohqueue/webpack.prod.config.js ohqueue/.babelrc /ohqueue/
 COPY --chown=node:node ohqueue/package.json ohqueue/package-lock.json /ohqueue/
 RUN cd /ohqueue && npm install
 COPY --chown=node:node ohqueue/frontend/assets /ohqueue/frontend/assets
