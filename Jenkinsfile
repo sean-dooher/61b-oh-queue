@@ -20,8 +20,9 @@ pipeline {
     stage('Test React') {
       steps {
         sh 'mkdir -p reports && chmod 777 reports'
-        sh 'docker-compose -f docker-compose.yml -f test-compose.yml -p $ID run reactserver npm run test || true'
+        sh 'docker-compose -f docker-compose.yml -f test-compose.yml -p $ID run reactserver npm run coverage || true'
         junit 'reports/js-xunit.xml'
+        cobertura autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'reports/react_coverage/clover.xml', conditionalCoverageTargets: '70, 0, 0', failUnhealthy: false, failUnstable: false, lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false
       }
     }
     stage('Publish') {

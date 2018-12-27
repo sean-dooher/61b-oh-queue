@@ -22,6 +22,7 @@ module.exports = {
   setupFiles: [
     './jest-setup.js',
   ],
+  coverageDirectory: "reports/react_coverage",
   collectCoverageFrom: [
     'frontend/assets/js/**/*.{js,jsx}',
   ],
@@ -32,7 +33,7 @@ module.exports = {
   ],
   coverageThreshold: {
     global: {
-      statements: 10,
+      statements: 0,
     },
   },
   reporters: [
