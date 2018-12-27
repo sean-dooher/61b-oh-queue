@@ -38,7 +38,7 @@ module.exports = {
   reporters: [
         'default', // keep the default reporter
         [
-          jest-junit, 
+          "jest-junit", 
           {
             suiteName: "jest tests",
             outputDirectory: path.join(process.cwd(), "reports"),
