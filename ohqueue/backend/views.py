@@ -105,7 +105,7 @@ class StudentTicket(APIView):
         
         if request.content_type == "application/json":
             try:
-                put_data = json.loads(request.body)
+                patch_data = json.loads(request.body)
             except json.decoder.JSONDecodeError:
                 response = {
                     'success': False,
@@ -113,10 +113,10 @@ class StudentTicket(APIView):
                 }
                 return Response(response, status=400)
         else:
-            put_data = request.data
+            patch_data = request.data
         
         ticket = ticket.first()
-        success = ticket.edit(request.user.profile, put_data)
+        success = ticket.edit(request.user.profile, patch_data)
 
         return Response({'success': success})
 
