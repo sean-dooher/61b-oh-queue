@@ -10,7 +10,7 @@ from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from .serializers import TicketSerializer, TicketEventSerializer
-from .models import Ticket, TicketEvent, TicketStatus, ProfileType
+from .models import Ticket, TicketEvent, TicketStatus, TicketEventType, ProfileType
 
 class IsStaff(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -87,6 +87,12 @@ class StudentTicket(APIView):
             question = question,
             description = description,
             location = location
+        )
+
+        TicketEvent.objects.create(
+            ticket=ticket,
+            user=request.user.profile,
+            event_type=TicketEventType.create.value
         )
         
         return Response({'success': True})

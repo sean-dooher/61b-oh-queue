@@ -196,14 +196,20 @@ class TestStudentApi(TestUtils):
         for attr in ticket_json:
             assert getattr(ticket, attr) == ticket_json[attr], 'Expected all attributes to match'
 
+    def test_student_ticket_create_event(self, profile, client):
+        response = client.post('/api/myticket', self.ticket_json())
+        assert response.status_code == 200, response.json()
+
+        ticket_event = TicketEvent.objects.filter(event_type=TicketEventType.create.value)
+        assert ticket_event.exists(), "Ticket event should have been created"
+
     def test_student_ticket_create_bad_json(self, profile, client):
         response = client.post('/api/myticket', '{"bad":13', content_type='application/json')
         assert response.status_code == 400, response.json()
 
     def test_student_ticket_view(self, profile, client):
         ticket_json = self.ticket_json()
-        response = client.post('/api/myticket', ticket_json)
-        assert response.status_code == 200, response.json()
+        client.post('/api/myticket', ticket_json)
 
         response = client.get('/api/myticket')
         assert response.status_code == 200, response.json()
@@ -214,9 +220,7 @@ class TestStudentApi(TestUtils):
             assert ticket[attr] == ticket_json[attr], 'Expected all attributes to match'
 
     def test_student_ticket_delete(self, profile, client):
-        ticket_json = self.ticket_json()
-        response = client.post('/api/myticket', ticket_json)
-        assert response.status_code == 200, response.json()
+        client.post('/api/myticket', self.ticket_json())
 
         response = client.delete('/api/myticket')
         assert response.status_code == 200, response.json()
@@ -224,13 +228,16 @@ class TestStudentApi(TestUtils):
         ticket = Ticket.objects.filter(student=profile, status=TicketStatus.deleted.value)
         assert ticket.exists(), "Ticket should exist with deletion status"
 
-    def test_student_ticket_delete_view(self, profile, client):
-        ticket_json = self.ticket_json()
-        response = client.post('/api/myticket', ticket_json)
-        assert response.status_code == 200, response.json()
+    def test_student_ticket_delete_event(self, profile, client):
+        client.post('/api/myticket',  self.ticket_json())
+        client.delete('/api/myticket')
 
-        response = client.delete('/api/myticket')
-        assert response.status_code == 200, response.json()
+        ticket_event = TicketEvent.objects.filter(event_type=TicketEventType.delete.value)
+        assert ticket_event.exists(), "Ticket event should have been created"
+
+    def test_student_ticket_delete_view(self, profile, client):
+        client.post('/api/myticket', self.ticket_json())
+        client.delete('/api/myticket')
 
         response = client.get('/api/myticket')
         assert response.status_code == 404, response.json()
@@ -238,7 +245,6 @@ class TestStudentApi(TestUtils):
     def test_student_ticket_patch_full(self, profile, client):
         ticket_json = self.ticket_json()
         response = client.post('/api/myticket', ticket_json)
-        assert response.status_code == 200, response.json()
 
         for key in ticket_json:
             ticket_json[key] = ticket_json[key] + '-updated'
@@ -272,3 +278,14 @@ class TestStudentApi(TestUtils):
 
         for attr in ticket_json:
             assert getattr(ticket, attr) == ticket_json[attr], 'Expected all attributes to match'
+
+    def test_student_ticket_patch_event(self, profile, client):
+        response = client.post('/api/myticket', self.ticket_json())
+
+        ticket_update = {'location': 'new_location'}
+
+        response = client.patch('/api/myticket', ticket_update)
+        ticket = Ticket.objects.filter(student=profile, status=TicketStatus.pending.value)
+
+        ticket_event = TicketEvent.objects.filter(ticket=ticket.first(), event_type=TicketEventType.describe.value)
+        assert ticket_event.exists(), "Ticket event should have been created"
