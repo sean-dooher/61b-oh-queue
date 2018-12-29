@@ -80,6 +80,7 @@ class StudentTicket(APIView):
         location = post_data['location']
 
         ticket = Ticket.objects.create(
+            student = request.user.profile,
             status = TicketStatus.pending.value,
             assignment = assignment,
             question = question,
