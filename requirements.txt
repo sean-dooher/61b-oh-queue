@@ -11,22 +11,29 @@ atomicwrites==1.2.1       # via pytest
 attrs==18.2.0             # via automat, pytest, twisted
 autobahn==18.12.1         # via daphne
 automat==0.7.0            # via twisted
+certifi==2018.11.29       # via requests
 channels-redis==2.3.2
 channels==2.1.6
 channelsmultiplexer==0.0.2
+chardet==3.0.4            # via requests
 click==7.0                # via pip-tools
 constantly==15.1.0        # via twisted
+coreapi==2.3.3
+coreschema==0.0.4         # via coreapi
 coverage==4.5.2
 daphne==2.2.4             # via channels
 django-cors-headers==2.4.0
 django-webpack-loader==0.6.0
 django==2.1.4
 djangorestframework==3.9.0
-hiredis==0.3.0            # via aioredis
+hiredis==0.3.1            # via aioredis
 hyperlink==18.0.0         # via twisted
-idna==2.8                 # via hyperlink
+idna==2.8                 # via hyperlink, requests
 incremental==17.5.0       # via twisted
-more-itertools==4.3.0     # via pytest
+itypes==1.1.0             # via coreapi
+jinja2==2.10              # via coreschema
+markupsafe==1.1.0         # via jinja2
+more-itertools==5.0.0     # via pytest
 msgpack==0.5.6            # via channels-redis
 pip-tools==3.2.0
 pluggy==0.8.0             # via pytest
@@ -38,8 +45,12 @@ pytest-cov==2.6.0
 pytest-django==3.4.4
 pytest==4.0.2             # via pytest-asyncio, pytest-cov, pytest-django
 pytz==2018.7              # via django
+pyyaml==3.13
+requests==2.21.0          # via coreapi
 six==1.12.0               # via autobahn, automat, more-itertools, pip-tools, pyhamcrest, pytest, txaio
 twisted==18.9.0           # via daphne
 txaio==18.8.1             # via autobahn
+uritemplate==3.0.0        # via coreapi
+urllib3==1.24.1           # via requests
 websockets==7.0
 zope.interface==4.6.0     # via twisted

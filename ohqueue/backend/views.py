@@ -25,10 +25,18 @@ class IsTeachingAssistant(permissions.BasePermission):
         return user.is_authenticated and user.profile.profile_type in ta_types
 
 class StudentTicket(APIView):
+    """
+    Student accessible API for managing their own tickets.
+    """
+    serializer_class = TicketSerializer
     html_method_names = ['get', 'put', 'post', 'options', 'delete']
     open_statuses = [TicketStatus.pending.value, TicketStatus.assigned.value]
 
     def get(self, request):
+        """
+        get:
+        Returns the users current ticket.
+        """
         ticket = Ticket.objects.filter(
                     student=request.user.profile,
                     status__in=StudentTicket.open_statuses)
@@ -39,6 +47,10 @@ class StudentTicket(APIView):
         return Response(TicketSerializer(ticket.first()).data)
 
     def post(self, request):
+        """
+        post:
+        Creates a new user ticket if none currently exists. Needs assignment, question, description, and location.
+        """
         ticket = Ticket.objects.filter(
                     student=request.user.profile,
                     status__in=StudentTicket.open_statuses)
@@ -98,6 +110,10 @@ class StudentTicket(APIView):
         return Response({'success': True})
 
     def patch(self, request):
+        """
+        patch:
+        Changes certain attributes of the ticket model. Needs one or more of assignment, question, description, and location.
+        """
         ticket = Ticket.objects.filter(
                     student=request.user.profile,
                     status__in=StudentTicket.open_statuses)
@@ -127,9 +143,17 @@ class StudentTicket(APIView):
         return Response({'success': success})
 
     def put(self, request):
+        """
+        put:
+        Same as patch.
+        """
         return self.patch(request)
 
     def delete(self, request):
+        """
+        delete:
+        Marks the users ticket as deleted.
+        """
         ticket = Ticket.objects.filter(
                     student=request.user.profile,
                     status__in=StudentTicket.open_statuses)
@@ -148,16 +172,25 @@ class StudentTicket(APIView):
         return Response(response)
 
 class TicketList(ReadOnlyModelViewSet):
+    """
+    Lists all tickets ever created
+    """
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
     permission_classes = [IsTeachingAssistant]
 
 class TicketQueue(ReadOnlyModelViewSet):
+    """
+    Lists all tickets currently able to be assigned
+    """
     queryset = Ticket.objects.filter(status=TicketStatus.pending.value)
     serializer_class = TicketSerializer
     permission_classes = [IsStaff]
 
 class TicketEventList(ReadOnlyModelViewSet):
+    """
+    Lists all TicketEvents (for statistical purposes)
+    """
     queryset = TicketEvent.objects.all()
     serializer_class = TicketEventSerializer
     permission_classes = [IsTeachingAssistant]

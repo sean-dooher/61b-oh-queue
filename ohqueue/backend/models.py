@@ -14,6 +14,7 @@ class ModelEnum(Enum):
     def choices(cls):
         return [(tag.name, tag.value) for tag in cls]
 
+
 class ProfileType(ModelEnum):
     student="student"
     lab_assistant="lab_assistant"
