@@ -25,6 +25,7 @@ class IsTeachingAssistant(permissions.BasePermission):
         return user.is_authenticated and user.profile.profile_type in ta_types
 
 class StudentTicket(APIView):
+    html_method_names = ['get', 'put', 'post', 'options', 'delete']
     open_statuses = [TicketStatus.pending.value, TicketStatus.assigned.value]
 
     def get(self, request):
@@ -118,7 +119,9 @@ class StudentTicket(APIView):
         success = ticket.edit(request.user.profile, put_data)
 
         return Response({'success': success})
-        
+
+    def put(self, request):
+        return self.patch(request)
 
     def delete(self, request):
         ticket = Ticket.objects.filter(
