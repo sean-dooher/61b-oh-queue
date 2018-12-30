@@ -1,6 +1,9 @@
 # 61B Office Hour Queue [![Build Status](http://builder.dooher.net/buildStatus/icon?job=61b-oh-queue/master)](http://builder.dooher.net/job/61b-oh-queue/job/master/)
 This is the newly redesigned OH queue for CS 61B.
 
+## API Reference
+This project uses the Django Rest Framework automated documentation generator. Importing the API directly into this markdown file is being investigated, but currently the API reference can be viewed by going to the `/docs/` endpoint on a running copy of the server (e.g. `http://localhost:8000/docs/` when running locally).
+
 ## Running
 ### Running with Docker
 A basic docker configuration is included in this project for both deployment in production and local development. This is the recommended way to run this on all platforms for uniformity as this docker deployment will be used on the actual production server.
