@@ -3,10 +3,19 @@ from enum import Enum
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
-class ProfileType(Enum):
+
+class ModelEnum(Enum):
+    @classmethod
+    def choices(cls):
+        return [(tag.name, tag.value) for tag in cls]
+
+
+class ProfileType(ModelEnum):
     student="student"
     lab_assistant="lab_assistant"
     teaching_assistant="teaching_assistant"
@@ -17,14 +26,17 @@ class Profile(models.Model):
 
     profile_type = models.CharField(
                 max_length=64,
-                choices=[(tag, tag.value) for tag in ProfileType],
+                choices=ProfileType.choices(),
                 default=ProfileType.student.value,
                 db_index=True)
 
     name = models.CharField(max_length=255)
 
+    def __str__(self):
+        return f"{self.name} -- {self.profile_type}"
 
-class TicketStatus(Enum):
+
+class TicketStatus(ModelEnum):
     pending="pending"
     assigned="assigned"
     resolved="resolved"
@@ -34,7 +46,7 @@ class TicketStatus(Enum):
 class Ticket(models.Model):
     created = models.DateTimeField(auto_now=True, db_index=True)
     updated = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=20, choices=[(tag, tag.value) for tag in TicketStatus], db_index=True)
+    status = models.CharField(max_length=20, choices=TicketStatus.choices(), db_index=True)
 
     student = models.ForeignKey(Profile, related_name="tickets", on_delete=models.CASCADE, db_index=True)
     assignment = models.CharField(max_length=255)
@@ -45,7 +57,7 @@ class Ticket(models.Model):
     helper = models.ForeignKey(Profile, related_name="helping", null=True, on_delete=models.SET_NULL, db_index=True)
 
     def assign(self, helper):
-        Ticket.status = TicketStatus.assigned.value
+        self.status = TicketStatus.assigned.value
         self.save()
 
         TicketEvent.objects.create(
@@ -53,8 +65,8 @@ class Ticket(models.Model):
             ticket=self, user=helper
         )
     
-    def delete(self, user):
-        Ticket.status = TicketStatus.deleted.value
+    def remove(self, user):
+        self.status = TicketStatus.deleted.value
         self.save()
 
         TicketEvent.objects.create(
@@ -63,7 +75,7 @@ class Ticket(models.Model):
         )
     
     def requeue(self, user):
-        Ticket.status = TicketStatus.pending.value
+        self.status = TicketStatus.pending.value
         self.save()
 
         TicketEvent.objects.create(
@@ -72,7 +84,7 @@ class Ticket(models.Model):
         )
     
     def resolve(self, user):
-        Ticket.status = TicketStatus.resolved.value
+        self.status = TicketStatus.resolved.value
         self.save()
 
         TicketEvent.objects.create(
@@ -80,8 +92,28 @@ class Ticket(models.Model):
             ticket=self, user=user
         )
 
+    def edit(self, user, update_dict):
+        good_params = ['assignment', 'question', 'description', 'location']
+        for param in update_dict:
+            if param in good_params:
+                setattr(self, param, update_dict[param])
+        
+        try:
+            self.save()
+            TicketEvent.objects.create(
+                event_type=TicketEventType.describe.value,
+                ticket=self, user=user
+            )
+        except ValidationError as e:
+            return False
 
-class TicketEventType(Enum):
+        return True
+
+    def __str__(self):
+        return f"{self.student.name} -- {self.assignment}-{self.question} ({self.location}, {self.created.strftime('%Y-%m-%d %H:%M:%S')})"
+
+
+class TicketEventType(ModelEnum):
     create='create'
     assign='assign'
     unassign='unassign'
@@ -92,7 +124,10 @@ class TicketEventType(Enum):
 
 class TicketEvent(models.Model):
     time = models.DateTimeField(auto_now=True)
-    event_type = models.CharField(max_length=20, choices=[(tag, tag.value) for tag in TicketEventType], db_index=True)
+    event_type = models.CharField(max_length=20, choices=TicketEventType.choices(), db_index=True)
 
     ticket = models.ForeignKey('Ticket', on_delete=models.CASCADE)
     user = models.ForeignKey(Profile, null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return f"Ticket {self.ticket.id}: {self.event_type} -- {self.user.name}"

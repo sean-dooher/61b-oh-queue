@@ -154,3 +154,138 @@ class TestQueue(TestUtils):
         data = result.json()
 
         assert len(data) == 7, "Should be exactly 7 tickets in queue (3 resolved)"
+
+@pytest.mark.django_db(transaction=True)
+class TestStudentApi(TestUtils):
+    def ticket_json(self):
+        return {
+            'assignment': 'Project 3',
+            'question': 'Question 1',
+            'location': 'Morgan 255',
+            'description': 'Problem with graph implementation'
+        }
+
+    def test_student_no_ticket(self, profile, client):
+        response = client.get('/api/myticket')
+
+        assert response.status_code == 404, response.json()
+
+    def test_student_ticket_create_json(self, profile, client):
+        ticket_json = self.ticket_json()
+        response = client.post('/api/myticket', json.dumps(ticket_json), content_type='application/json')
+        assert response.status_code == 200, response.json()
+
+        ticket = Ticket.objects.filter(student=profile, status=TicketStatus.pending.value)
+        assert ticket.exists(), "Ticket should exist after creation"
+
+        ticket = ticket.first()
+
+        for attr in ticket_json:
+            assert getattr(ticket, attr) == ticket_json[attr], 'Expected all attributes to match'
+
+    def test_student_ticket_create(self, profile, client):
+        ticket_json = self.ticket_json()
+        response = client.post('/api/myticket', ticket_json)
+        assert response.status_code == 200, response.json()
+
+        ticket = Ticket.objects.filter(student=profile, status=TicketStatus.pending.value)
+        assert ticket.exists(), "Ticket should exist after creation"
+
+        ticket = ticket.first()
+
+        for attr in ticket_json:
+            assert getattr(ticket, attr) == ticket_json[attr], 'Expected all attributes to match'
+
+    def test_student_ticket_create_event(self, profile, client):
+        response = client.post('/api/myticket', self.ticket_json())
+        assert response.status_code == 200, response.json()
+
+        ticket_event = TicketEvent.objects.filter(event_type=TicketEventType.create.value)
+        assert ticket_event.exists(), "Ticket event should have been created"
+
+    def test_student_ticket_create_bad_json(self, profile, client):
+        response = client.post('/api/myticket', '{"bad":13', content_type='application/json')
+        assert response.status_code == 400, response.json()
+
+    def test_student_ticket_view(self, profile, client):
+        ticket_json = self.ticket_json()
+        client.post('/api/myticket', ticket_json)
+
+        response = client.get('/api/myticket')
+        assert response.status_code == 200, response.json()
+
+        ticket = response.json()
+
+        for attr in ticket_json:
+            assert ticket[attr] == ticket_json[attr], 'Expected all attributes to match'
+
+    def test_student_ticket_delete(self, profile, client):
+        client.post('/api/myticket', self.ticket_json())
+
+        response = client.delete('/api/myticket')
+        assert response.status_code == 200, response.json()
+
+        ticket = Ticket.objects.filter(student=profile, status=TicketStatus.deleted.value)
+        assert ticket.exists(), "Ticket should exist with deletion status"
+
+    def test_student_ticket_delete_event(self, profile, client):
+        client.post('/api/myticket',  self.ticket_json())
+        client.delete('/api/myticket')
+
+        ticket_event = TicketEvent.objects.filter(event_type=TicketEventType.delete.value)
+        assert ticket_event.exists(), "Ticket event should have been created"
+
+    def test_student_ticket_delete_view(self, profile, client):
+        client.post('/api/myticket', self.ticket_json())
+        client.delete('/api/myticket')
+
+        response = client.get('/api/myticket')
+        assert response.status_code == 404, response.json()
+
+    def test_student_ticket_patch_full(self, profile, client):
+        ticket_json = self.ticket_json()
+        response = client.post('/api/myticket', ticket_json)
+
+        for key in ticket_json:
+            ticket_json[key] = ticket_json[key] + '-updated'
+
+        response = client.patch('/api/myticket', ticket_json)
+        assert response.status_code == 200, response.json()
+
+        ticket = Ticket.objects.filter(student=profile, status=TicketStatus.pending.value)
+        assert ticket.exists(), "Ticket should exist after creation"
+
+        ticket = ticket.first()
+
+        for attr in ticket_json:
+            assert getattr(ticket, attr) == ticket_json[attr], 'Expected all attributes to match'
+
+    def test_student_ticket_patch_partial(self, profile, client):
+        ticket_json = self.ticket_json()
+        response = client.post('/api/myticket', ticket_json)
+        assert response.status_code == 200, response.json()
+
+        ticket_json['location'] = ticket_json['location'] + '-updated'
+        ticket_update = {'location': ticket_json['location']}
+
+        response = client.patch('/api/myticket', ticket_update)
+        assert response.status_code == 200, response.json()
+
+        ticket = Ticket.objects.filter(student=profile, status=TicketStatus.pending.value)
+        assert ticket.exists(), "Ticket should exist after creation"
+
+        ticket = ticket.first()
+
+        for attr in ticket_json:
+            assert getattr(ticket, attr) == ticket_json[attr], 'Expected all attributes to match'
+
+    def test_student_ticket_patch_event(self, profile, client):
+        response = client.post('/api/myticket', self.ticket_json())
+
+        ticket_update = {'location': 'new_location'}
+
+        response = client.patch('/api/myticket', ticket_update)
+        ticket = Ticket.objects.filter(student=profile, status=TicketStatus.pending.value)
+
+        ticket_event = TicketEvent.objects.filter(ticket=ticket.first(), event_type=TicketEventType.describe.value)
+        assert ticket_event.exists(), "Ticket event should have been created"
