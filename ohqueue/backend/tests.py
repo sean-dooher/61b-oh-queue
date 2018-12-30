@@ -14,13 +14,15 @@ class TestUtils:
     @pytest.fixture
     def profile(self):
         self.user = User.objects.create_user("test", email="test@test.com", password="pass123")
-        self.student_profile = Profile.objects.create(user=self.user, name="Alice Bobson")
+        self.student_profile = self.user.profile
         return self.student_profile
 
     @pytest.fixture
     def staff_profile(self):
-        self.user = User.objects.create_user("staff", email="test@test.com", password="pass123")
-        self.staff = Profile.objects.create(user=self.user, profile_type=ProfileType.teaching_assistant.value, name="Alice Bobson")
+        self.staff_user = User.objects.create_user("staff", email="test@test.com", password="pass123")
+        self.staff = self.staff_user.profile
+        self.staff.profile_type = ProfileType.teaching_assistant.value
+        self.staff.save()
         return self.staff
 
     @pytest.fixture
@@ -214,6 +216,13 @@ class TestStudentApi(TestUtils):
 
         for attr in ticket_json:
             assert getattr(ticket, attr) == ticket_json[attr], 'Expected all attributes to match'
+
+    def test_student_ticket_double_create_view(self, profile, client):
+        client.post('/api/myticket/', self.ticket_json())
+        client.post('/api/myticket/', self.ticket_json())
+
+        response = client.get('/api/myticket/')
+        assert response.status_code == 200, response.content
 
     def test_student_ticket_create_event(self, profile, client):
         response = client.post('/api/myticket/', self.ticket_json())
