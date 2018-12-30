@@ -27,5 +27,3 @@ urlpatterns = [
     path(r'docs/', include_docs_urls(title='OH Queue API'))
 ]
 urlpatterns += staticfiles_urlpatterns()
-
-urlpatterns = format_suffix_patterns(urlpatterns)
