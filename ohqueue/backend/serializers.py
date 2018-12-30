@@ -6,8 +6,8 @@ from .models import Ticket, TicketEvent, TicketStatus, TicketEventType
 class TicketSerializer(ModelSerializer):
     class Meta:
         model = Ticket
-        fields = ('assignment', 'question', 'location', 'description', 'student', 'status', 'created', 'updated')
-        read_only_fields = ('student', 'status', 'created', 'updated')
+        fields = ('assignment', 'question', 'location', 'description', 'student', 'status', 'created', 'updated', 'id')
+        read_only_fields = ('student', 'status', 'created', 'updated', 'id')
 
     def create(self, validated_data):
         validated_data['student'] = self.context['request'].user.profile
