@@ -167,7 +167,6 @@ class TestStudentApi(TestUtils):
 
     def test_student_no_ticket(self, profile, client):
         response = client.get('/api/myticket/')
-
         assert response.status_code == 404, response.content
 
     def test_student_ticket_create_json(self, profile, client):
@@ -187,6 +186,26 @@ class TestStudentApi(TestUtils):
         ticket_json = self.ticket_json()
         response = client.post('/api/myticket/', ticket_json)
         assert response.status_code == 201, response.content
+
+        ticket = Ticket.objects.filter(student=profile, status=TicketStatus.pending.value)
+        assert ticket.exists(), "Ticket should exist after creation"
+
+        ticket = ticket.first()
+
+        for attr in ticket_json:
+            assert getattr(ticket, attr) == ticket_json[attr], 'Expected all attributes to match'
+
+    def test_student_ticket_double_create(self, profile, client):
+        ticket_json = self.ticket_json()
+        response = client.post('/api/myticket/', ticket_json)
+
+        for key in ticket_json:
+            ticket_json[key] += '-new'
+        
+        response = client.post('/api/myticket/', ticket_json)
+
+        ticket = Ticket.objects.filter(student=profile, status=TicketStatus.deleted.value)
+        assert ticket.exists(), "Old ticket should have been deleted"
 
         ticket = Ticket.objects.filter(student=profile, status=TicketStatus.pending.value)
         assert ticket.exists(), "Ticket should exist after creation"

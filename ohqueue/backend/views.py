@@ -55,8 +55,11 @@ class StudentTicket(mixins.RetrieveModelMixin,
     def post(self, request, *args, **kwargs):
         """
         post:
-        Creates a new user ticket if none currently exists. Needs assignment, question, description, and location.
+        Creates a new user ticket, deleting the users active ticket if it exists. Needs assignment, question, description, and location.
         """
+        if self.ticket_exists():
+            self.get_object().remove(request.user.profile)
+
         return self.create(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
