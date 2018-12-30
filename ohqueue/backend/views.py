@@ -78,11 +78,7 @@ class StudentTicket(mixins.RetrieveModelMixin,
         delete:
         Marks the users ticket as deleted.
         """
-        if not self.ticket_exists():
-            return Response({'detail': 'Not found.'}, status=404)
-
         self.get_object().remove(request.user.profile)
-
         return Response({'detail': 'Not found.'}, status=204)
 
 class TicketList(ReadOnlyModelViewSet):
