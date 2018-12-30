@@ -17,7 +17,7 @@ router.register('events', TicketEventList, 'Event')
 
 api_urls = [
     path(r'', include(router.urls)),
-    path(r'myticket', StudentTicket.as_view())
+    path(r'myticket/', StudentTicket.as_view())
 ]
 
 urlpatterns = [
