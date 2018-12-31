@@ -32,6 +32,10 @@ class Profile(models.Model):
                 default=ProfileType.student.value,
                 db_index=True)
 
+    @property
+    def name(self):
+        return " ".join([self.user.first_name, self.user.last_name])
+
     def __str__(self):
         return f"{self.name} -- {self.profile_type}"
 
@@ -91,23 +95,6 @@ class Ticket(models.Model):
             event_type=TicketEventType.resolve.value, 
             ticket=self, user=user
         )
-
-    def edit(self, user, update_dict):
-        good_params = ['assignment', 'question', 'description', 'location']
-        for param in update_dict:
-            if param in good_params:
-                setattr(self, param, update_dict[param])
-        
-        try:
-            self.save()
-            TicketEvent.objects.create(
-                event_type=TicketEventType.describe.value,
-                ticket=self, user=user
-            )
-        except ValidationError as e:
-            return False
-
-        return True
 
     def __str__(self):
         return f"{self.student.name} -- {self.assignment}-{self.question} ({self.location}, {self.created.strftime('%Y-%m-%d %H:%M:%S')})"
