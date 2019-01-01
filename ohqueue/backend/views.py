@@ -114,9 +114,7 @@ class StaffTicket(mixins.RetrieveModelMixin,
     def get_object(self):
         if (self.lookup_url_kwarg in self.kwargs and
             self.kwargs[self.lookup_url_kwarg] == 'next'):
-            ticket = self.get_next_ticket_in_queue()
-            self.check_object_permissions(self.request, ticket)
-            return ticket
+            return self.get_next_ticket_in_queue()
         else:
             return super().get_object()
 

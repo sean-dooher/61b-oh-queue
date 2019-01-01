@@ -11,8 +11,8 @@ from backend.views import StudentTicket, StaffTicket, TicketList, TicketQueue, T
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns  
 
 router = routers.SimpleRouter()
-router.register('tickets', TicketList, 'Ticket')
-router.register('queue', TicketQueue, 'Ticket')
+router.register('tickets', TicketList, 'Ticket List')
+router.register('queue', TicketQueue, 'Ticket Queue')
 router.register('events', TicketEventList, 'Event')
 
 api_urls = [
