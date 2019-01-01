@@ -48,7 +48,7 @@ class TicketStatus(ModelEnum):
 
 
 class Ticket(models.Model):
-    created = models.DateTimeField(auto_now=True, db_index=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=20, choices=TicketStatus.choices(), db_index=True, help_text=_("current status of this ticket"))
 
@@ -60,14 +60,8 @@ class Ticket(models.Model):
     description = models.TextField(help_text=_("description of the problem the student has"))
     helper = models.ForeignKey(Profile, related_name="helping", null=True, on_delete=models.SET_NULL, db_index=True, help_text=_("which staff member is currently assisting the student"))
 
-    def assign(self, helper):
-        self.status = TicketStatus.assigned.value
-        self.save()
-
-        TicketEvent.objects.create(
-            event_type=TicketEventType.assign.value, 
-            ticket=self, user=helper
-        )
+    class Meta:
+        get_latest_by = 'created'
     
     def remove(self, user):
         self.status = TicketStatus.deleted.value
@@ -75,24 +69,6 @@ class Ticket(models.Model):
 
         TicketEvent.objects.create(
             event_type=TicketEventType.delete.value, 
-            ticket=self, user=user
-        )
-    
-    def requeue(self, user):
-        self.status = TicketStatus.pending.value
-        self.save()
-
-        TicketEvent.objects.create(
-            event_type=TicketEventType.unassign.value, 
-            ticket=self, user=user
-        )
-    
-    def resolve(self, user):
-        self.status = TicketStatus.resolved.value
-        self.save()
-
-        TicketEvent.objects.create(
-            event_type=TicketEventType.resolve.value, 
             ticket=self, user=user
         )
 
