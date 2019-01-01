@@ -34,6 +34,12 @@ class TicketSerializer(ModelSerializer):
 
         return ticket
 
+class StaffTicketSerializer(ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = ('assignment', 'question', 'location', 'description', 'student', 'status', 'created', 'updated', 'id')
+        read_only_fields = ('assignment', 'question', 'location', 'description', 'student', 'created', 'updated', 'id')
+
 class TicketEventSerializer(ModelSerializer):
     class Meta:
         model = TicketEvent
