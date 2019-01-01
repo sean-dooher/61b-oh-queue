@@ -22,6 +22,20 @@ class ProfileType(ModelEnum):
     lab_assistant="lab_assistant"
     teaching_assistant="teaching_assistant"
 
+class TicketEventType(ModelEnum):
+    create='create'
+    assign='assign'
+    unassign='unassign'
+    resolve='resolve'
+    delete='delete'
+    describe='describe'
+
+class TicketStatus(ModelEnum):
+    pending="pending"
+    assigned="assigned"
+    resolved="resolved"
+    deleted="deleted"
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
@@ -39,13 +53,38 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.name} -- {self.profile_type}"
 
+def ticket_status_to_event(pre, post):
+    """
+    Defines a FSM for generating ticket events for staff actions on student tickets
+    """
+    status_dict = {
+        TicketStatus.pending: {
+            TicketStatus.pending: None,
+            TicketStatus.assigned: TicketEventType.assign,
+            TicketStatus.resolved: TicketEventType.resolve,
+            TicketStatus.deleted: TicketEventType.delete,
+        },
+        TicketStatus.assigned: {
+            TicketStatus.pending: TicketEventType.unassign,
+            TicketStatus.assigned: None,
+            TicketStatus.resolved: TicketEventType.resolve,
+            TicketStatus.deleted: TicketEventType.delete,
+        },
+        TicketStatus.resolved: {
+            TicketStatus.pending: None,
+            TicketStatus.assigned: TicketEventType.assign,
+            TicketStatus.resolved: None,
+            TicketStatus.deleted: TicketEventType.delete,
+        },
+        TicketStatus.deleted: {
+            TicketStatus.pending: None,
+            TicketStatus.assigned: TicketEventType.assign,
+            TicketStatus.resolved: TicketEventType.resolve,
+            TicketStatus.deleted: None,
+        }
+    }
 
-class TicketStatus(ModelEnum):
-    pending="pending"
-    assigned="assigned"
-    resolved="resolved"
-    deleted="deleted"
-
+    return status_dict[pre][post]
 
 class Ticket(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -74,16 +113,6 @@ class Ticket(models.Model):
 
     def __str__(self):
         return f"{self.student.name} -- {self.assignment}-{self.question} ({self.location}, {self.created.strftime('%Y-%m-%d %H:%M:%S')})"
-
-
-class TicketEventType(ModelEnum):
-    create='create'
-    assign='assign'
-    unassign='unassign'
-    resolve='resolve'
-    delete='delete'
-    describe='describe'
-
 
 class TicketEvent(models.Model):
     time = models.DateTimeField(auto_now=True)

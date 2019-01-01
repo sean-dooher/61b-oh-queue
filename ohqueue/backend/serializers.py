@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework import routers
 
-from .models import Ticket, TicketEvent, TicketStatus, TicketEventType
+from .models import Ticket, TicketEvent, TicketStatus, TicketEventType, ticket_status_to_event
 
 class TicketSerializer(ModelSerializer):
     class Meta:
@@ -24,7 +24,7 @@ class TicketSerializer(ModelSerializer):
         return ticket
 
     def update(self, instance, validated_data):
-        ticket = ModelSerializer.update(self, instance, validated_data)
+        ticket = super().update(instance, validated_data)
         
         TicketEvent.objects.create(
             ticket = ticket,
@@ -39,6 +39,21 @@ class StaffTicketSerializer(ModelSerializer):
         model = Ticket
         fields = ('assignment', 'question', 'location', 'description', 'student', 'status', 'created', 'updated', 'id')
         read_only_fields = ('assignment', 'question', 'location', 'description', 'student', 'created', 'updated', 'id')
+
+    def update(self, instance, validated_data):
+        pre_status = TicketStatus(instance.status)
+        ticket = super().update(instance, validated_data)
+        post_status = TicketStatus(instance.status)
+
+        event_type = ticket_status_to_event(pre_status, post_status)
+        if event_type:
+            TicketEvent.objects.create(
+                ticket = ticket,
+                event_type = event_type.value,
+                user = self.context['request'].user.profile
+            )
+
+        return ticket
 
 class TicketEventSerializer(ModelSerializer):
     class Meta:
