@@ -1,3 +1,5 @@
+import string
+import random
 import pytest
 import logging
 import json
@@ -26,16 +28,50 @@ class TestUtils:
         return self.staff
 
     @pytest.fixture
-    def client(self):
+    def client(self, profile):
         client = APIClient()
         client.login(username="test", password="pass123")
         return client
 
     @pytest.fixture
-    def staff_client(self):
+    def staff_client(self, staff_profile):
         client = APIClient()
         client.login(username="staff", password="pass123")
         return client
+
+    @pytest.fixture
+    def ticket(self, profile):
+        return Ticket.objects.create(
+                    status=TicketStatus.pending.value,
+                    student=self.student_profile,
+                    assignment="Project 3",
+                    question="Question 1",
+                    location="Morgan 255",
+                    description="[Conceptual] Need help with make client")
+
+    @pytest.fixture
+    def students(self):
+        self.student_profiles = []
+        for _ in range(10):
+            name = ''.join(random.choices(string.ascii_uppercase, k=12))
+            password = ''.join(random.choices(string.ascii_uppercase, k=12))
+            self.student_profiles.append(User.objects.create_user(name, password).profile)
+        return self.students
+
+    @pytest.fixture
+    def tickets(self, students):
+        self.student_tickets = []
+        for student in self.student_profiles:
+            self.student_tickets.append(
+                Ticket.objects.create(
+                    student=student,
+                    status=TicketStatus.pending.value,
+                    assignment="Project 3",
+                    question="Question 1",
+                    location="Morgan 255",
+                    description="[Conceptual] Need help with make client"
+            ))
+        return self.student_tickets
 
 @pytest.mark.django_db(transaction=True)
 class TestSerializers(TestUtils):
@@ -85,7 +121,7 @@ class TestSerializers(TestUtils):
         serialized = TicketSerializer(ticket)
         self.check_single_ticket(serialized.data, profile)
 
-    def test_ticket_end_to_end_single(self, staff_profile, profile, staff_client, ticket):
+    def test_ticket_end_to_end_single(self, profile, staff_client, ticket):
         result = staff_client.get('/api/tickets/')
         assert result.status_code == 200, "Should have succeeded"
 
@@ -106,7 +142,7 @@ class TestSerializers(TestUtils):
 
         self.check_single_event(serialized.data, ticket, profile)
 
-    def test_ticket_event_end_to_end(self, staff_profile, staff_client, profile, ticket):
+    def test_ticket_event_end_to_end(self, staff_client, profile, ticket):
         TicketEvent.objects.create(event_type=TicketEventType.delete.value, ticket=ticket, user=profile)
 
         result = staff_client.get('/api/events/')
@@ -121,22 +157,7 @@ class TestSerializers(TestUtils):
 
 @pytest.mark.django_db(transaction=True)
 class TestQueue(TestUtils):
-    def create_ticket(self, status=TicketStatus.pending):
-        return Ticket.objects.create(
-                status=status.value,
-                student=self.student_profile,
-                assignment="Project 3",
-                question="Question 1",
-                location="Morgan 255",
-                description="[Conceptual] Need help with make client")
-
-    @pytest.fixture
-    def tickets(self):
-        return [self.create_ticket() for _ in range(10)]
-
-    def test_queue_single_item(self, profile, staff_profile, staff_client):
-        self.create_ticket()
-
+    def test_queue_single_item(self, staff_client, ticket):
         result = staff_client.get('/api/queue/')
         assert result.status_code == 200, "Should have succeeded"
 
@@ -144,7 +165,7 @@ class TestQueue(TestUtils):
 
         assert len(data) == 1, "Should be exactly one ticket"
 
-    def test_queue_some_resolved(self, profile, staff_profile, staff_client, tickets):
+    def test_queue_some_resolved(self, staff_client, tickets):
         for i, ticket in enumerate(tickets):
             if i in [1, 2, 4]:
                 ticket.status = TicketStatus.resolved.value
@@ -203,7 +224,7 @@ class TestStudentApi(TestUtils):
 
         for key in ticket_json:
             ticket_json[key] += '-new'
-        
+
         response = client.post('/api/myticket/', ticket_json)
 
         ticket = Ticket.objects.filter(student=profile, status=TicketStatus.deleted.value)
@@ -317,3 +338,121 @@ class TestStudentApi(TestUtils):
 
         ticket_event = TicketEvent.objects.filter(ticket=ticket.first(), event_type=TicketEventType.describe.value)
         assert ticket_event.exists(), "Ticket event should have been created"
+
+
+@pytest.mark.django_db(transaction=True)
+class TestStaffApi(TestUtils):
+    def resolve_ticket(self, ticket):
+        ticket.status = TicketStatus.resolved.value
+        ticket.save()
+
+        return ticket
+
+    def test_staff_null_get_by_id(self, staff_client, ticket):
+        result = staff_client.get(f'/api/staffticket/{ticket.id + 1}')
+        assert result.status_code == 404, result.content
+
+    def test_staff_null_get_by_next(self, staff_client):
+        result = staff_client.get('/api/staffticket/next')
+        assert result.status_code == 404, result.content
+
+    def test_staff_single_item_get_by_id(self, staff_client, ticket):
+        result = staff_client.get(f'/api/staffticket/{ticket.id}')
+        assert result.status_code == 200, result.content
+
+    def test_staff_single_item_get_by_id(self, staff_client, ticket):
+        result = staff_client.get(f'/api/staffticket/{ticket.id}')
+        assert result.status_code == 200, result.content
+
+    def test_staff_get_next_resolve(self, staff_client, tickets):
+        ticket1_json = staff_client.get('/api/staffticket/next').json()
+        self.resolve_ticket(Ticket.objects.get(id=ticket1_json['id']))
+
+        ticket2_json = staff_client.get('/api/staffticket/next').json()
+
+        assert ticket2_json['id'] != ticket1_json['id']
+
+    def test_staff_put_next_assigned(self, staff_client, tickets):
+        result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.assigned.value})
+        assert result.status_code == 200, result.content
+        ticket = Ticket.objects.get(id=result.json()['id'])
+
+        assert TicketStatus(ticket.status) == TicketStatus.assigned
+
+    def test_staff_put_next_assigned_multiple(self, staff_client, tickets):
+        for _ in range(4):
+            result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.assigned.value})
+            assert result.status_code == 200, result.content
+            ticket = Ticket.objects.get(id=result.json()['id'])
+
+            assert TicketStatus(ticket.status) == TicketStatus.assigned
+
+        result = staff_client.get('/api/queue/')
+        assert result.status_code == 200, "Should have succeeded"
+
+        data = result.json()
+
+        assert len(data) == 6, "Should be exactly 6 tickets in queue (4 assigned)"
+
+    def test_staff_put_next_assigned_multiple(self, staff_client, tickets):
+        for _ in range(4):
+            result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.assigned.value})
+            assert result.status_code == 200, result.content
+            ticket = Ticket.objects.get(id=result.json()['id'])
+
+            assert TicketStatus(ticket.status) == TicketStatus.assigned
+
+        result = staff_client.get('/api/queue/')
+        assert result.status_code == 200, "Should have succeeded"
+
+        data = result.json()
+
+        assert len(data) == 6, "Should be exactly 6 tickets in queue (4 assigned)"
+
+    def test_staff_assign_ticket_helper(self, staff_profile, staff_client, tickets):
+        result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.assigned.value})
+        ticket = Ticket.objects.get(id=result.json()['id'])
+
+        assert ticket.helper == staff_profile
+
+    def test_staff_assign_ticket_event(self, staff_client, tickets):
+        result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.assigned.value})
+        ticket = Ticket.objects.get(id=result.json()['id'])
+
+        assert TicketEvent.objects.filter(ticket=ticket, event_type=TicketEventType.assign.value).exists()
+
+    def test_staff_delete_ticket_event(self, staff_client, tickets):
+        result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.deleted.value})
+        ticket = Ticket.objects.get(id=result.json()['id'])
+
+        assert TicketEvent.objects.filter(ticket=ticket, event_type=TicketEventType.delete.value).exists()
+
+    def test_staff_unassign_ticket_event(self, staff_client, tickets):
+        result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.assigned.value})
+        ticket = Ticket.objects.get(id=result.json()['id'])
+        result = staff_client.put(f'/api/staffticket/{ticket.id}', {'status': TicketStatus.pending.value})
+
+        assert TicketEvent.objects.filter(ticket=ticket, event_type=TicketEventType.unassign.value).exists()
+
+    def test_staff_resolve_ticket_event(self, staff_client, tickets):
+        result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.assigned.value})
+        ticket = Ticket.objects.get(id=result.json()['id'])
+        result = staff_client.put(f'/api/staffticket/{ticket.id}', {'status': TicketStatus.resolved.value})
+
+        assert TicketEvent.objects.filter(ticket=ticket, event_type=TicketEventType.resolve.value).exists()
+
+    def test_staff_reassign_ticket_event(self, staff_client, tickets):
+        result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.assigned.value})
+        ticket = Ticket.objects.get(id=result.json()['id'])
+
+
+        staff_profile = User.objects.create_user("staff2", email="test@test.com", password="pass123").profile
+        staff_profile.profile_type = ProfileType.teaching_assistant.value
+        staff_profile.save()
+
+        staff2_client = APIClient()
+        staff2_client.login(username="staff2", password="pass123")
+
+        result = staff2_client.put(f'/api/staffticket/{ticket.id}', {'status': TicketStatus.assigned.value})
+
+        assert TicketEvent.objects.filter(ticket=ticket, event_type=TicketEventType.unassign.value).exists()

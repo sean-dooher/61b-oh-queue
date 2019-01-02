@@ -22,6 +22,20 @@ class ProfileType(ModelEnum):
     lab_assistant="lab_assistant"
     teaching_assistant="teaching_assistant"
 
+class TicketEventType(ModelEnum):
+    create='create'
+    assign='assign'
+    unassign='unassign'
+    resolve='resolve'
+    delete='delete'
+    describe='describe'
+
+class TicketStatus(ModelEnum):
+    pending="pending"
+    assigned="assigned"
+    resolved="resolved"
+    deleted="deleted"
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
@@ -39,16 +53,41 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.name} -- {self.profile_type}"
 
+def ticket_status_to_event(pre, post):
+    """
+    Defines a FSM for generating ticket events for staff actions on student tickets
+    """
+    status_dict = {
+        TicketStatus.pending: {
+            TicketStatus.pending: [],
+            TicketStatus.assigned: [TicketEventType.assign],
+            TicketStatus.resolved: [TicketEventType.resolve],
+            TicketStatus.deleted: [TicketEventType.delete],
+        },
+        TicketStatus.assigned: {
+            TicketStatus.pending: [TicketEventType.unassign],
+            TicketStatus.assigned: [TicketEventType.unassign, TicketEventType.assign],
+            TicketStatus.resolved: [TicketEventType.resolve],
+            TicketStatus.deleted: [TicketEventType.delete],
+        },
+        TicketStatus.resolved: {
+            TicketStatus.pending: [],
+            TicketStatus.assigned: [TicketEventType.assign],
+            TicketStatus.resolved: [],
+            TicketStatus.deleted: [TicketEventType.delete],
+        },
+        TicketStatus.deleted: {
+            TicketStatus.pending: [],
+            TicketStatus.assigned: [TicketEventType.assign],
+            TicketStatus.resolved: [TicketEventType.resolve],
+            TicketStatus.deleted: [],
+        }
+    }
 
-class TicketStatus(ModelEnum):
-    pending="pending"
-    assigned="assigned"
-    resolved="resolved"
-    deleted="deleted"
-
+    return status_dict[pre][post]
 
 class Ticket(models.Model):
-    created = models.DateTimeField(auto_now=True, db_index=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=20, choices=TicketStatus.choices(), db_index=True, help_text=_("current status of this ticket"))
 
@@ -60,14 +99,8 @@ class Ticket(models.Model):
     description = models.TextField(help_text=_("description of the problem the student has"))
     helper = models.ForeignKey(Profile, related_name="helping", null=True, on_delete=models.SET_NULL, db_index=True, help_text=_("which staff member is currently assisting the student"))
 
-    def assign(self, helper):
-        self.status = TicketStatus.assigned.value
-        self.save()
-
-        TicketEvent.objects.create(
-            event_type=TicketEventType.assign.value, 
-            ticket=self, user=helper
-        )
+    class Meta:
+        get_latest_by = 'created'
     
     def remove(self, user):
         self.status = TicketStatus.deleted.value
@@ -77,37 +110,9 @@ class Ticket(models.Model):
             event_type=TicketEventType.delete.value, 
             ticket=self, user=user
         )
-    
-    def requeue(self, user):
-        self.status = TicketStatus.pending.value
-        self.save()
-
-        TicketEvent.objects.create(
-            event_type=TicketEventType.unassign.value, 
-            ticket=self, user=user
-        )
-    
-    def resolve(self, user):
-        self.status = TicketStatus.resolved.value
-        self.save()
-
-        TicketEvent.objects.create(
-            event_type=TicketEventType.resolve.value, 
-            ticket=self, user=user
-        )
 
     def __str__(self):
         return f"{self.student.name} -- {self.assignment}-{self.question} ({self.location}, {self.created.strftime('%Y-%m-%d %H:%M:%S')})"
-
-
-class TicketEventType(ModelEnum):
-    create='create'
-    assign='assign'
-    unassign='unassign'
-    resolve='resolve'
-    delete='delete'
-    describe='describe'
-
 
 class TicketEvent(models.Model):
     time = models.DateTimeField(auto_now=True)
