@@ -14,3 +14,6 @@ channelsmultiplexer
 pip-tools
 coreapi
 pyyaml
+channelsmultiplexer
+djangochannelsrestframework
+
