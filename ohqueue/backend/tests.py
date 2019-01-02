@@ -440,3 +440,19 @@ class TestStaffApi(TestUtils):
         result = staff_client.put(f'/api/staffticket/{ticket.id}', {'status': TicketStatus.resolved.value})
 
         assert TicketEvent.objects.filter(ticket=ticket, event_type=TicketEventType.resolve.value).exists()
+
+    def test_staff_reassign_ticket_event(self, staff_client, tickets):
+        result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.assigned.value})
+        ticket = Ticket.objects.get(id=result.json()['id'])
+
+
+        staff_profile = User.objects.create_user("staff2", email="test@test.com", password="pass123").profile
+        staff_profile.profile_type = ProfileType.teaching_assistant.value
+        staff_profile.save()
+
+        staff2_client = APIClient()
+        staff2_client.login(username="staff2", password="pass123")
+
+        result = staff2_client.put(f'/api/staffticket/{ticket.id}', {'status': TicketStatus.assigned.value})
+
+        assert TicketEvent.objects.filter(ticket=ticket, event_type=TicketEventType.unassign.value).exists()
