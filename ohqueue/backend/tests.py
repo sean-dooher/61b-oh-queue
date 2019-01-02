@@ -408,3 +408,35 @@ class TestStaffApi(TestUtils):
         data = result.json()
 
         assert len(data) == 6, "Should be exactly 6 tickets in queue (4 assigned)"
+
+    def test_staff_assign_ticket_helper(self, staff_profile, staff_client, tickets):
+        result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.assigned.value})
+        ticket = Ticket.objects.get(id=result.json()['id'])
+
+        assert ticket.helper == staff_profile
+
+    def test_staff_assign_ticket_event(self, staff_client, tickets):
+        result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.assigned.value})
+        ticket = Ticket.objects.get(id=result.json()['id'])
+
+        assert TicketEvent.objects.filter(ticket=ticket, event_type=TicketEventType.assign.value).exists()
+
+    def test_staff_delete_ticket_event(self, staff_client, tickets):
+        result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.deleted.value})
+        ticket = Ticket.objects.get(id=result.json()['id'])
+
+        assert TicketEvent.objects.filter(ticket=ticket, event_type=TicketEventType.delete.value).exists()
+
+    def test_staff_unassign_ticket_event(self, staff_client, tickets):
+        result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.assigned.value})
+        ticket = Ticket.objects.get(id=result.json()['id'])
+        result = staff_client.put(f'/api/staffticket/{ticket.id}', {'status': TicketStatus.pending.value})
+
+        assert TicketEvent.objects.filter(ticket=ticket, event_type=TicketEventType.unassign.value).exists()
+
+    def test_staff_resolve_ticket_event(self, staff_client, tickets):
+        result = staff_client.put('/api/staffticket/next', {'status': TicketStatus.assigned.value})
+        ticket = Ticket.objects.get(id=result.json()['id'])
+        result = staff_client.put(f'/api/staffticket/{ticket.id}', {'status': TicketStatus.resolved.value})
+
+        assert TicketEvent.objects.filter(ticket=ticket, event_type=TicketEventType.resolve.value).exists()
