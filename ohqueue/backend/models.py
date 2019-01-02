@@ -59,28 +59,28 @@ def ticket_status_to_event(pre, post):
     """
     status_dict = {
         TicketStatus.pending: {
-            TicketStatus.pending: None,
-            TicketStatus.assigned: TicketEventType.assign,
-            TicketStatus.resolved: TicketEventType.resolve,
-            TicketStatus.deleted: TicketEventType.delete,
+            TicketStatus.pending: [],
+            TicketStatus.assigned: [TicketEventType.assign],
+            TicketStatus.resolved: [TicketEventType.resolve],
+            TicketStatus.deleted: [TicketEventType.delete],
         },
         TicketStatus.assigned: {
-            TicketStatus.pending: TicketEventType.unassign,
-            TicketStatus.assigned: None,
-            TicketStatus.resolved: TicketEventType.resolve,
-            TicketStatus.deleted: TicketEventType.delete,
+            TicketStatus.pending: [TicketEventType.unassign],
+            TicketStatus.assigned: [TicketEventType.unassign, TicketEventType.assign],
+            TicketStatus.resolved: [TicketEventType.resolve],
+            TicketStatus.deleted: [TicketEventType.delete],
         },
         TicketStatus.resolved: {
-            TicketStatus.pending: None,
-            TicketStatus.assigned: TicketEventType.assign,
-            TicketStatus.resolved: None,
-            TicketStatus.deleted: TicketEventType.delete,
+            TicketStatus.pending: [],
+            TicketStatus.assigned: [TicketEventType.assign],
+            TicketStatus.resolved: [],
+            TicketStatus.deleted: [TicketEventType.delete],
         },
         TicketStatus.deleted: {
-            TicketStatus.pending: None,
-            TicketStatus.assigned: TicketEventType.assign,
-            TicketStatus.resolved: TicketEventType.resolve,
-            TicketStatus.deleted: None,
+            TicketStatus.pending: [],
+            TicketStatus.assigned: [TicketEventType.assign],
+            TicketStatus.resolved: [TicketEventType.resolve],
+            TicketStatus.deleted: [],
         }
     }
 
