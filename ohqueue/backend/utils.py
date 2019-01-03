@@ -40,6 +40,12 @@ def get_earliest_object_or_404(klass, *args, **kwargs):
         raise Http404('No %s matches the given query.' % queryset.model._meta.object_name)
 
 def create_or_use_loop(awaitable):
+    """
+    This function is a hacky fix to allow the test runner to work with
+    the ObserverBinding class. As otherwise the observer would have to
+    use async_to_sync, which works in production, but has conflicts with
+    the testing environment.
+    """
     try:
         event_loop = asyncio.get_event_loop()
     except RuntimeError:
