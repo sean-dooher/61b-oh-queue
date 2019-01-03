@@ -45,7 +45,7 @@ class ConsumerTests(TestUtils):
 @pytest.mark.asyncio
 @pytest.mark.django_db(transaction=True)
 class TestLeaves(ConsumerTests):
-    async def test_ticket_create(self, profile, disconnect):
+    async def test_ticket_no_create(self, profile, disconnect):
         client = await self.create_client(profile.user, disconnect)
         await self.subscribe(client, 'queue', 'create')
 
@@ -58,10 +58,7 @@ class TestLeaves(ConsumerTests):
             description="[Conceptual] Need help with make client"
         )
 
-        response = await client.receive_json_from()
-
-        assert response['stream'] == 'queue'
-        assert response['payload']['action'] == 'create'
+        assert await client.receive_nothing()
 
     async def test_ticket_no_update(self, profile, disconnect):
         ticket = Ticket.objects.create(
