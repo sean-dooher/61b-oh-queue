@@ -1,21 +1,14 @@
-import json
 import logging
 
-from djangochannelsrestframework.consumers import view_as_consumer
-from channelsmultiplexer import AsyncJsonWebsocketDemultiplexer
-from asgiref.sync import async_to_sync
-
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
-from django.utils import timezone
-
-from .views import StudentTicket, TicketEventList
+from .models import Ticket, TicketStatus, TicketEvent, TicketEventType
+from .serializers import AnonymizedTicketSerializer, TicketEventSerializer, TicketSerializer
+from .utils import ObserverBinding
 
 logger = logging.getLogger(__name__)
 
-class APIDemux(AsyncJsonWebsocketDemultiplexer):
-    applications = {
-        "myticket": view_as_consumer(StudentTicket),
-        "events": view_as_consumer(TicketEventList)
-    }
+class TicketQueueConsumer(ObserverBinding):
+    model = Ticket
+    serializer_class = AnonymizedTicketSerializer
+
+    def get_queryset(self):
+        return Ticket.objects.filter(status__in=[TicketStatus.pending.value, TicketStatus.assigned.value])
