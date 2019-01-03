@@ -25,6 +25,7 @@ daphne==2.2.4             # via channels
 django-cors-headers==2.4.0
 django-webpack-loader==0.6.0
 django==2.1.4
+djangochannelsrestframework==0.0.3
 djangorestframework==3.9.0
 hiredis==0.3.1            # via aioredis
 hyperlink==18.0.0         # via twisted

@@ -101,15 +101,18 @@ class Ticket(models.Model):
 
     class Meta:
         get_latest_by = 'created'
-    
-    def remove(self, user):
+
+    def delete(self, *args, **kwargs):
         self.status = TicketStatus.deleted.value
         self.save()
 
         TicketEvent.objects.create(
             event_type=TicketEventType.delete.value, 
-            ticket=self, user=user
+            ticket=self, user=self.student
         )
+
+    def real_delete(self, *args, **kwargs):
+        return super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"{self.student.name} -- {self.assignment}-{self.question} ({self.location}, {self.created.strftime('%Y-%m-%d %H:%M:%S')})"

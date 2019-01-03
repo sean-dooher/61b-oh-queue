@@ -3,6 +3,12 @@ from rest_framework import routers
 
 from .models import Ticket, TicketEvent, TicketStatus, TicketEventType, ticket_status_to_event
 
+class AnonymizedTicketSerializer(ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = ('assignment', 'question', 'location', 'id', 'status', 'updated', 'created')
+        read_only_fields = ('assignment', 'question', 'location', 'id', 'status', 'updated', 'created')
+
 class TicketSerializer(ModelSerializer):
     class Meta:
         model = Ticket
