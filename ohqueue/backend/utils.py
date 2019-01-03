@@ -64,9 +64,9 @@ def create_or_use_loop(awaitable):
 
 class ObserverBinding(AsyncJsonWebsocketConsumer):
     def __init__(self, *args, **kwargs):
-        self.subscribe_create = True
-        self.subscribe_delete = True
-        self.subscribe_update = True
+        self.subscribe_create = False
+        self.subscribe_delete = False
+        self.subscribe_update = False
         self._connect_to_model()
         super().__init__(*args, **kwargs)
 
@@ -86,26 +86,32 @@ class ObserverBinding(AsyncJsonWebsocketConsumer):
         self._disconnect_from_model()
         await super().disconnect(message)
 
+    def filter_model(self, action, instance):
+        return True
+
     def post_save_receiver(self, instance, created, **kwargs):
-        serializer = self.serializer_class(instance)
-        if created and self.subscribe_create:
-            create_or_use_loop(self.send_json({
-                'action': 'create',
-                'data': serializer.data
-            }))
-        elif self.subscribe_update:
-            create_or_use_loop(self.send_json({
-                'action': 'update',
-                'data': serializer.data
-            }))
+        action = 'create' if created else 'update'
+        if self.filter_model(action, instance):
+            serializer = self.serializer_class(instance)
+            if created and self.subscribe_create:
+                create_or_use_loop(self.send_json({
+                    'action': 'create',
+                    'data': serializer.data
+                }))
+            elif self.subscribe_update:
+                create_or_use_loop(self.send_json({
+                    'action': 'update',
+                    'data': serializer.data
+                }))
 
     def post_delete_receiver(self, instance, **kwargs):
-        if self.subscribe_delete:
-            serializer = self.serializer_class(instance)
-            create_or_use_loop(self.send_json({
-                'action': 'delete',
-                'data': serializer.data
-            }))
+        if self.filter_model('delete', instance):
+            if self.subscribe_delete:
+                serializer = self.serializer_class(instance)
+                create_or_use_loop(self.send_json({
+                    'action': 'delete',
+                    'data': serializer.data
+                }))
 
     def get_instance(self, pk):
         return self.get_queryset().get(pk=pk)
@@ -113,7 +119,7 @@ class ObserverBinding(AsyncJsonWebsocketConsumer):
     def get_queryset(self):
         return EmptyQuerySet()
 
-    def receive_json(self, content):
+    async def receive_json(self, content):
         if 'action' not in content:
             return
 
@@ -123,6 +129,17 @@ class ObserverBinding(AsyncJsonWebsocketConsumer):
             self.handle_retrieve(content.get('data', {}))
         elif content['action'] == 'list':
             self.handle_list()
+
+    def handle_subscribe(self, message):
+        if 'action' not in message:
+            return
+
+        if message['action'] in ['create', 'all']:
+            self.subscribe_create = True
+        if message['action'] in ['update', 'all']:
+            self.subscribe_update = True
+        if message['action'] in ['delete', 'all']:
+            self.subscribe_delete = True
 
     def handle_retrieve(self, message):
         if 'pk' in message:

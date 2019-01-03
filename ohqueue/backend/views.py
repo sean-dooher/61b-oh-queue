@@ -43,6 +43,7 @@ class TicketEventList(ReadOnlyModelViewSet):
 class StudentTicket(mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,
                     mixins.CreateModelMixin,
+                    mixins.DestroyModelMixin,
                     generics.GenericAPIView):
     """
     Student accessible API for managing their own tickets.
@@ -74,7 +75,7 @@ class StudentTicket(mixins.RetrieveModelMixin,
         Creates a new user ticket, deleting the users active ticket if it exists. Needs assignment, question, description, and location.
         """
         if self.ticket_exists():
-            self.get_object().remove(request.user.profile)
+            self.get_object().delete()
 
         return self.create(request, *args, **kwargs)
 
@@ -97,11 +98,11 @@ class StudentTicket(mixins.RetrieveModelMixin,
         delete:
         Marks the users ticket as deleted.
         """
-        self.get_object().remove(request.user.profile)
-        return Response({'detail': 'Not found.'}, status=204)
+        return self.destroy(request, *args, **kwargs)
 
 class StaffTicket(mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,
+                    mixins.DestroyModelMixin,
                     generics.GenericAPIView):
     """
     Allows staff to mark tickets as resolved, assigned, or deleted.
@@ -143,9 +144,7 @@ class StaffTicket(mixins.RetrieveModelMixin,
         delete:
         Marks the users ticket as deleted.
         """
-        self.get_object().remove(request.user.profile)
-        return Response({'detail': 'Not found.'}, status=204)
-
+        return self.destroy(request, *args, **kwargs)
 
 class TicketList(ReadOnlyModelViewSet):
     """
