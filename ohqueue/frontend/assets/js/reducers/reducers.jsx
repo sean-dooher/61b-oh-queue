@@ -1,9 +1,12 @@
 import {CHANGE_PAGE} from "../actions/navActions";
+import { UPDATE_TICKETS } from "../actions/ticketActions";
 
 const initialState = {
-    api: {},
+    api: {
+        tickets: [],
+    },
     navbar: {
-        links: [{name: 'Page 1', href: '/queue/'}, {name: 'Page 2', href: '/queue/page2'}],
+        links: [],
         active: '/queue/'
     }
 };
@@ -18,6 +21,9 @@ export function mainApp(state = initialState, action) {
     switch (action.type) {
         case CHANGE_PAGE:
             newState.navbar.active = action.page;
+            return newState;
+        case UPDATE_TICKETS:
+            newState.api.tickets = action.tickets;
             return newState;
         default:
             return newState;

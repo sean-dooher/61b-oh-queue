@@ -1,11 +1,10 @@
 import React from "react";
 import {connect} from 'react-redux'
 import {Navigation} from "./components/navigation/Navigation";
-import {PageOne} from "./components/content/page1";
-import {PageTwo} from "./components/content/page2";
 import {changePage} from "./actions/navActions";
 import {Router, Route, Switch} from "react-router-dom";
 import { createBrowserHistory } from 'history';
+import MainViewApi from "./containers/contents/mainAPI";
 
 let history = createBrowserHistory();
 
@@ -25,8 +24,7 @@ export class AppBase extends React.Component {
         return (
             <Router history={history}>
                 <Navigation> 
-                    <Route exact={true} path="/queue" component={PageOne}/>
-                    <Route path="/queue/page2" component={PageTwo}/>
+                    <Route exact={true} path="/queue" component={MainViewApi}/>
                 </Navigation>
             </Router>);
     }
