@@ -24,7 +24,7 @@ api_urls = [
 urlpatterns = [
     path(r'admin/', admin.site.urls),
     path(r'', RedirectView.as_view(url='queue')),
-    re_path(r'queue/.*', index, name='index'),
+    re_path(r'^queue/.*', index, name='index'),
     path(r'api/', include(api_urls)),
     path(r'docs/', include_docs_urls(title='OH Queue API'))
 ]

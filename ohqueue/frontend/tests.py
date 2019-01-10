@@ -10,5 +10,5 @@ logging.disable(logging.ERROR)
 class TestFrontend:
     def test_smoke(self):
         c = Client()
-        response = c.get("/")
+        response = c.get("/queue/")
         assert response.status_code == 200
