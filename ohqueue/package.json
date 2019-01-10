@@ -43,6 +43,7 @@
     "js-cookie": "^2.2.0",
     "package.json": "^2.0.1",
     "prop-types": "^15.6.1",
+    "push-js": "^1.1.1",
     "react-redux": "^5.0.7",
     "react-router": "^4.2.0",
     "reactstrap": "^5.0.0",
