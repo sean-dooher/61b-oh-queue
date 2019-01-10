@@ -16,8 +16,8 @@ export class HeaderBar extends React.Component {
                     <ul className="navbar-nav mr-auto">
                         {
                             this.props.links.map((link, key) => (
-                                    <li className={"nav-item" + (this.props.active === link.name ? " active" : "")} key={key}>
-                                        <Link className="nav-link" to={link.href} onClick={() => this.props.changePage(link.name)}>{link.name}</Link>
+                                    <li className={"nav-item" + (this.props.active === link.href ? " active" : "")} key={key}>
+                                        <Link className="nav-link" to={link.href}>{link.name}</Link>
                                     </li>))
                         }
                     </ul>

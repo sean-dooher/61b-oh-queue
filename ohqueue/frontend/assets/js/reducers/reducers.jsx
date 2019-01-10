@@ -3,8 +3,8 @@ import {CHANGE_PAGE} from "../actions/navActions";
 const initialState = {
     api: {},
     navbar: {
-        links: [{name: 'Page 1', href: '/'}, {name: 'Page 2', href: '/page2'}],
-        active: 'Page 1'
+        links: [{name: 'Page 1', href: '/queue/'}, {name: 'Page 2', href: '/queue/page2'}],
+        active: '/queue/'
     }
 };
 

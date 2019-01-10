@@ -7,9 +7,7 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-    return {
-        changePage: (page) => dispatch(changePage(page))
-    };
+    return {};
 };
 
 let NavLinkBar = connect(mapStateToProps, mapDispatchToProps)(HeaderBar);
