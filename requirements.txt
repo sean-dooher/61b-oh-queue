@@ -24,7 +24,7 @@ coverage==4.5.2
 daphne==2.2.4             # via channels
 django-cors-headers==2.4.0
 django-webpack-loader==0.6.0
-django==2.1.4
+django==2.1.11
 djangochannelsrestframework==0.0.3
 djangorestframework==3.9.0
 hiredis==0.3.1            # via aioredis
